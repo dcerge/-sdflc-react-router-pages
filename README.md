@@ -1,7 +1,6 @@
 # @sdflc / React Router Pages
 
-This is simple helper component that uses an array with a list of web application pages to render component `<Route>` (from `react-router-dom`) for each page from that array.
-In some cases it may simplify web application page management.
+This is simple helper component for react application that uses an array with a list of pages to render component `<Route>` (from `react-router-dom`) for each page from that array. In some cases it may simplify web application page management. 
 
 # Installation
 
@@ -86,7 +85,7 @@ import {
 const siteMap = [
   {
     name: 'Home',
-    subtitle: 'Welcome to the app',
+    subtitle: 'welcome to the app',
     url: '/',
     component: ContentPage,
     options: {
@@ -101,11 +100,13 @@ const siteMap = [
       },
       {
         name: 'Projects',
+        subtitle: 'manage your projects on the page',
         url: '/projects',
         component: ProjectsPage,
         items: [
           {
             name: 'Edit',
+            subtitle: 'project settings',
             url: '/projects/edit/:projectId',
             component: ProjectEditPage,
             visible: false,
@@ -194,10 +195,22 @@ This is a demo file with pages components referenced to from the siteMap array.
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+const Header = (props) => {
+  return (
+    <div>
+      <h1>
+        <span>{props.page.name}&nbsp;</span>
+        {props.page.subtitle && <small>{props.page.subtitle}</small>}
+      </h1>
+      <hr/>
+    </div>
+  );
+}
+
 const ContentPage = (props) => {
   return (
     <div>
-      <h1>{props.page.name}</h1>
+      <Header {...props} />
       <h3>Page props:</h3>
       <pre>{JSON.stringify(props, null, '  ')}</pre>
     </div>
@@ -207,7 +220,7 @@ const ContentPage = (props) => {
 const ProjectsPage = (props) => {
   return (
     <div>
-      <h1>Projects</h1>
+      <Header {...props} />
       <p>List of projects:</p>
       <Link to='/projects/edit/1'>Edit Project 1</Link>
     </div>
@@ -215,10 +228,9 @@ const ProjectsPage = (props) => {
 };
 
 const ProjectEditPage = (props) => {
-  const { page } = props;
   return (
     <div>
-      <h1>Project Edit</h1>
+      <Header {...props} />
       <h3>Page props:</h3>
       <pre>{JSON.stringify(props, null, '  ')}</pre>
     </div>
