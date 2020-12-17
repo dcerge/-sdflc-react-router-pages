@@ -134,7 +134,7 @@ export default App;
 
 ## src/componentsMap.js
 
-This is the file that exports an mapping object.
+This is the file that exports a mapping object.
 
 ```js
 import LayoutNotFound from './layouts/layoutNotFound';
@@ -176,40 +176,38 @@ const siteMap = [
     component: 'content', // note that we use string we would hook up with the componentsMap.
     options: {
       some: 'Test'
-    },
+    }
+  },
+  {
+    name: 'About',
+    subtitle: '',
+    url: '/about',
+    component: ContentPage // note that we use component here
+  },
+  {
+    name: 'Projects',
+    subtitle: 'manage your projects on the page',
+    url: '/projects',
+    component: 'projects', // note that we use string we would hook up with the componentsMap.
+    roles: ['manager'], // make sure we render the page only if <SdFlcReactRouterPages/> has 'manager' in its `roles` array.
     items: [
       {
-        name: 'About',
-        subtitle: '',
-        url: '/about',
-        component: ContentPage // note that we use component here
-      },
-      {
-        name: 'Projects',
-        subtitle: 'manage your projects on the page',
-        url: '/projects',
-        component: 'projects', // note that we use string we would hook up with the componentsMap.
-        roles: ['manager'], // make sure we render the page only if <SdFlcReactRouterPages/> has 'manager' in its `roles` array.
-        items: [
-          {
-            name: 'Edit',
-            subtitle: 'project settings',
-            url: '/projects/edit/:projectId',
-            component: 'projectEdit', // note that we use string we would hook up with the componentsMap.
-            visible: false,
-            options: {
-              mode: 'edit'
-            }
-          }
-        ]
-      },
-      {
-        name: 'Not Found',
-        url: '*',
-        component: 'notFound', // note that we use string we would hook up with the componentsMap.
-        layout: 'layoutNotFound' // note that we use string we would hook up with the componentsMap.
+        name: 'Edit',
+        subtitle: 'project settings',
+        url: '/projects/edit/:projectId',
+        component: 'projectEdit', // note that we use string we would hook up with the componentsMap.
+        visible: false,
+        options: {
+          mode: 'edit'
+        }
       }
     ]
+  },
+  {
+    name: 'Not Found',
+    url: '*',
+    component: 'notFound', // note that we use string we would hook up with the componentsMap.
+    layout: 'layoutNotFound' // note that we use string we would hook up with the componentsMap.
   }
 ];
 
@@ -218,8 +216,10 @@ export default siteMap;
 
 ## src/components/Navigation/index.js
 
+This is an example of building a navigation component for pages layouts. Note that the component gets `siteMap` you providede to `<SdFlcReactRouterPages/>` as well as current page from the map as `page` prop. So, you can use the information to dynamically build navigation menu.
+
 ```js
-import React from 'react';
+import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { processRoutes } from '@sdflc/react-router-pages';
 
@@ -231,12 +231,15 @@ import { processRoutes } from '@sdflc/react-router-pages';
 const Navigation = (props) => {
   const { siteMap } = props;
   const parentUrl = (props.page.parent || {}).url || '';
-  const menu = processRoutes(siteMap).filter(page => (!page.parent || page.parent.url === '/') && page.visible === true);
+  const menu = processRoutes(siteMap).filter(page => !page.parent && page.visible === true);
   const lastPageIdx = menu.length - 1;
   const menuItems = menu.map((page, idx) => {
     return (
       <React.Fragment>
-        <Link to={page.url}>{page.name}</Link>
+        {(props.page.url === page.url) 
+          ? (<b>{page.name}</b>)
+          : (<Link to={page.url}>{page.name}</Link>)
+        }
         {idx < lastPageIdx && (
           <span> | </span>
         )}
@@ -259,12 +262,12 @@ const Navigation = (props) => {
   );
 };
 
-export default Navigation;
+export default memo(Navigation);
 ```
 
 ## src/layouts/layoutMain.js
 
-This is default layout for this example. You may want to ommit using layout component. In this example we add navigation menu to the layout which is used by all the pages.
+This is default page layout for this example. You may want to ommit using layout component. In this example we add navigation menu to the layout which is used by all the pages.
 
 ```js
 import React from 'react';
@@ -286,7 +289,7 @@ export  default MainLayout;
 
 ## src/layouts/layoutNotFound.js
 
-This is a layout used by the `PageNotFound` page component. You may want to ommit using page level layout components.
+This layout is used by the `PageNotFound` page component. You may want to ommit using page level layout components.
 
 ```js
 const LayoutNotFound = ({ children }) => {
@@ -301,6 +304,8 @@ export default LayoutNotFound;
 ```
 
 ## src/layouts/layoutRolesDontMatch
+
+This layout is used by `<SdFlcReactRouterPages/>` to render `rolesDontMatchComponent` component.
 
 ```js
 import React from 'react';
