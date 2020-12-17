@@ -14,13 +14,14 @@ To start using the component you need to follow the steps:
 - create pages components - components that represent each page. For an example, see below file `src/pages/index.js`
 - create a layout component(s) - optional components that wrap each page. For an example, see below file `src/layouts/layoutMain.js`
 - create a site map array - the array should contain information about all the pages. For an example, see below file `src/siteMap.js`
+- optionaly create `componentsMap` object to pass so you could make `siteMap` as json file with names of components instead of references to components classes. For an example, see below file `src/componentsMap.js`
 - use `<SdFlcReactRouterPages/>` instead of `react-router-dom` `<Route>` components in the `src/App.js` file as this component will render them for you.
 
 ## Properties
 
 ### siteMap
 
-The __required__ `siteMap` property is an array containing items of the following structure:
+The _required_ `siteMap` property is an array containing items of the following structure:
 
 ```js
 {
@@ -38,10 +39,65 @@ The __required__ `siteMap` property is an array containing items of the followin
 }
 ```
 
+Each page component gets the following props:
+
+- **page** - the page details information. An item from siteMap array
+- **siteMap** - the site map array
+- **rolesDontMatch** - boolean which is true in this case
+- other properties provided by `react-router-dom`
+
 ### layout
 
-The __optional__ `layout` prop is used to wrap all the pages components with this one. It can be used to define default pages layout containing navigation menu, footer, etc.
+The _optional_ `layout` prop is used to wrap all the pages components with this one. It can be used to define default pages layout containing navigation menu, footer, etc.
 If a page has its own `layout` prop then it will be used instead of global one.
+
+This component gets the following props:
+
+- **page** - the page details information. An item from siteMap array
+- **siteMap** - the site map array
+- **rolesDontMatch** - boolean which is true in this case
+- other properties provided by `react-router-dom`
+
+### componentsMap
+
+The _optional_ `componentsMap` prop is used to pages and layouts components look up by names. It allows you to use string names for components and layouts in the siteMap array instead of components themselves. Thus you can make siteMap as json file that can be either local or remote.
+
+### failoverComponent
+
+The _optional_ `failoverComponent` prop makes sense to use together with `componentsMap` in order to render `failoverComponent` in case when page/layout component was not found in the `componentsMap` prop. In this case, the `failoverComponent` is used for rendering where `failoverFor` and `page` props are passed. The `failoverFor` will have either `layout` or `page` string value so your failover component could render something meaningful for a user.
+
+This component gets the following props:
+
+- **page** - the page details information. An item from siteMap array
+- **siteMap** - the site map array
+- **rolesDontMatch** - boolean which is true in this case
+- other properties provided by `react-router-dom`
+
+### roles
+
+The _optional_ `roles` prop is a string array or a function that can be used to render only those pages that have at least one role matched to array in the props. For explanation please see the example below
+
+### rolesDontMatchComponent
+
+The _optional_ `rolesDontMatchComponent` prop defines a component to use for pages that have roles which can't be found in this component's `roles` prop. This component will be wrapped default page's layout or by `rolesDontMatchLayout` if it is present. Using this component you can notify user that he tries to get access to restricted page and possible provide him ways to get the access.
+
+This component gets the following props:
+
+- **page** - the page details information. An item from siteMap array
+- **siteMap** - the site map array
+- **rolesDontMatch** - boolean which is true in this case
+- other properties provided by `react-router-dom`
+
+### rolesDontMatchLayout
+
+The _optional_ `rolesDontMatchLayout` prop defines a component that will be used as a layout for the `rolesDontMatchComponent`.
+
+This component gets the following props:
+
+- **page** - the page details information. An item from siteMap array
+- **siteMap** - the site map array
+- **rolesDontMatch** - boolean which is true in this case
+- other properties provided by `react-router-dom`
 
 # Example
 
@@ -61,12 +117,45 @@ function App() {
     <SdFlcReactRouterPages
       siteMap={siteMap}
       layout={MainLayout}
+      componentsMap={componentsMap}
+      failoverComponent={({ failoverFor, page, children }) => {
+        console.log('Failover:', failoverFor, page);
+        return (<div data-failover={failoverFor}>{children}</div>);
+      }}
+      roles={['manager','admin']} // this prop will not allow to render pages that have not empty `page` which should be a string array
+
     />
   );
 }
 
 export default App;
 
+```
+
+## src/componentsMap.js
+
+This is the file that exports an mapping object.
+
+```js
+import LayoutNotFound from './layouts/layoutNotFound';
+import {
+  ContentPage,
+  ProjectsPage,
+  ProjectEditPage,
+  NotFoundPage,
+  UsersPage
+} from './pages';
+
+const componentsMap = {
+  content: ContentPage,
+  projects: ProjectsPage,
+  projectEdit: ProjectEditPage,
+  users: UsersPage,
+  notFound: NotFoundPage,
+  layoutNotFound: LayoutNotFound
+};
+
+export default componentsMap;
 ```
 
 ## src/siteMap.js
@@ -76,10 +165,7 @@ This is the file where you define your site map - array of objects with pages na
 ```js
 import LayoutNotFound from './layouts/layoutNotFound';
 import {
-  ContentPage,
-  ProjectsPage,
-  ProjectEditPage,
-  NotFoundPage
+  ContentPage
 } from './pages';
 
 const siteMap = [
@@ -87,7 +173,7 @@ const siteMap = [
     name: 'Home',
     subtitle: 'welcome to the app',
     url: '/',
-    component: ContentPage,
+    component: 'content', // note that we use string we would hook up with the componentsMap.
     options: {
       some: 'Test'
     },
@@ -96,19 +182,20 @@ const siteMap = [
         name: 'About',
         subtitle: '',
         url: '/about',
-        component: ContentPage
+        component: ContentPage // note that we use component here
       },
       {
         name: 'Projects',
         subtitle: 'manage your projects on the page',
         url: '/projects',
-        component: ProjectsPage,
+        component: 'projects', // note that we use string we would hook up with the componentsMap.
+        roles: ['manager'], // make sure we render the page only if <SdFlcReactRouterPages/> has 'manager' in its `roles` array.
         items: [
           {
             name: 'Edit',
             subtitle: 'project settings',
             url: '/projects/edit/:projectId',
-            component: ProjectEditPage,
+            component: 'projectEdit', // note that we use string we would hook up with the componentsMap.
             visible: false,
             options: {
               mode: 'edit'
@@ -119,8 +206,8 @@ const siteMap = [
       {
         name: 'Not Found',
         url: '*',
-        component: NotFoundPage,
-        layout: LayoutNotFound
+        component: 'notFound', // note that we use string we would hook up with the componentsMap.
+        layout: 'layoutNotFound' // note that we use string we would hook up with the componentsMap.
       }
     ]
   }
@@ -129,24 +216,38 @@ const siteMap = [
 export default siteMap;
 ```
 
-## src/layouts/layoutMain.js
-
-This is default layout for this example. You may want to ommit using layout component. In this example we add navigation menu to the layout which is used by all the pages.
+## src/components/Navigation/index.js
 
 ```js
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { processRoutes } from '@sdflc/react-router-pages';
 
+/**
+ * Renders layout's navigation menu. 
+ * Note: props.page has information on the current page.
+ * @param {object} props - the component properties
+ */
 const Navigation = (props) => {
+  const { siteMap } = props;
   const parentUrl = (props.page.parent || {}).url || '';
+  const menu = processRoutes(siteMap).filter(page => (!page.parent || page.parent.url === '/') && page.visible === true);
+  const lastPageIdx = menu.length - 1;
+  const menuItems = menu.map((page, idx) => {
+    return (
+      <React.Fragment>
+        <Link to={page.url}>{page.name}</Link>
+        {idx < lastPageIdx && (
+          <span> | </span>
+        )}
+      </React.Fragment>
+    );
+  });
+
   return (
     <div>
       <p>
-        <Link to={'/'}>Home</Link>
-        <span> | </span>
-        <Link to={'/about'}>About</Link>
-        <span> | </span>
-        <Link to={'/projects'}>Projects</Link>
+        {menuItems}
         {parentUrl && (
           <React.Fragment>
             <span> | </span>
@@ -156,7 +257,19 @@ const Navigation = (props) => {
       </p>
     </div>
   );
-}
+};
+
+export default Navigation;
+```
+
+## src/layouts/layoutMain.js
+
+This is default layout for this example. You may want to ommit using layout component. In this example we add navigation menu to the layout which is used by all the pages.
+
+```js
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Navigation } from '../components';
 
 const MainLayout = ({ children, page }) => {
   return (
@@ -185,6 +298,24 @@ const LayoutNotFound = ({ children }) => {
 }
 
 export default LayoutNotFound;
+```
+
+## src/layouts/layoutRolesDontMatch
+
+```js
+import React from 'react';
+import { Navigation } from '../components';
+
+const RolesDontMatchLayout = ({ children, page, siteMap }) => {
+  return (
+    <div style={{ backgroundColor: '#880000', padding: '20px', color: 'white' }}>
+      <Navigation {...{ page, siteMap }} />
+      {children}
+    </div>
+  )
+};
+
+export  default RolesDontMatchLayout;
 ```
 
 ## src/pages/index.js
@@ -243,10 +374,35 @@ const NotFoundPage = () => {
   )
 };
 
+const FailoverPage = ({ failoverFor, children, ...rest }) => {
+  return (
+    <div>
+      <h2>Failover for {failoverFor}</h2>
+      <h3>Page props:</h3>
+      <pre style={{ backgroundColor: 'transparent' }}>{JSON.stringify(rest, null, '  ')}</pre>
+      <h3>Page:</h3>
+      {children}
+    </div>
+  );
+};
+
+const RolesDontMatchPage = (props) => {
+  return (
+    <div>
+      <Header {...props} />
+      <h2>Access Denied</h2>
+      <h3>Page props:</h3>
+      <pre style={{ backgroundColor: 'transparent' }}>{JSON.stringify(props, null, '  ')}</pre>
+    </div>
+  );
+};
+
 export {
   ContentPage,
   ProjectsPage,
   ProjectEditPage,
-  NotFoundPage
+  NotFoundPage,
+  FailoverPage,
+  RolesDontMatchPage
 };
 ```

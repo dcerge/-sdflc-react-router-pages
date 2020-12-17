@@ -17,6 +17,7 @@ const addLevel = (allPages, level, parent, pages) => {
       url: page.url,
       urlmask: page.urlmask,
       visible: page.visible !== undefined ? page.visible : true,
+      roles: page.roles || [],
       options: page.options,
       component: page.component,
       layout: page.layout,
@@ -40,6 +41,7 @@ const addLevel = (allPages, level, parent, pages) => {
  *  component: A reference to component to use to render the page,
  *  layout: A reference to component to use to wrap the page (layout),
  *  visible: is a boolean which can be used to build navigation menu automatically and do not show this page in the navigation,
+ *  roles: is a string array with role names which can see the page. If does not have value or an empty array it is considered it does not have anything.
  *  options: an object with options needed by the page to render/operate,
  *  items: an array of similar object that are located 'below' of this page (hierarchy).
  * }
