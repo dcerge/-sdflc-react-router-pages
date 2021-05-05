@@ -1,28 +1,20 @@
 import React from 'react';
-import SdFlcPages, { processRoutes } from '../src';
+import { processRoutes } from '../src';
 
 const HomePage = () => {
-  return (
-    <div>Home</div>
-  )
+  return <div>Home</div>;
 };
 
 const AboutPage = () => {
-  return (
-    <div>About</div>
-  )
+  return <div>About</div>;
 };
 
 const DashboardPage = () => {
-  return (
-    <div>Dashboard</div>
-  )
+  return <div>Dashboard</div>;
 };
 
 const DashboardEditPage = () => {
-  return (
-    <div>Dashboard</div>
-  )
+  return <div>Dashboard</div>;
 };
 
 const siteMap = [
@@ -32,14 +24,14 @@ const siteMap = [
     url: '/',
     component: HomePage,
     options: {
-      some: 'Test'
+      some: 'Test',
     },
     items: [
       {
         name: 'About',
         subtitle: '',
         url: '/about',
-        component: AboutPage
+        component: AboutPage,
       },
       {
         name: 'Dashboard',
@@ -51,16 +43,15 @@ const siteMap = [
             name: 'Edit',
             url: '/dashboard/edit',
             component: DashboardEditPage,
-            visible: false
-          }
-        ]
-      }
-    ]
+            visible: false,
+          },
+        ],
+      },
+    ],
   },
 ];
 
 test('Testing processRoutes function', () => {
-
   const parsed = processRoutes(siteMap);
   const expecting = [
     {
@@ -109,5 +100,4 @@ test('Testing processRoutes function', () => {
   parsed.forEach((page, idx) => {
     expect(page).toEqual(expect.objectContaining(expecting[idx]));
   });
-  
 });

@@ -5,13 +5,19 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { processRoutes } from './utils';
 
 const selectComponentToUse = (componentsMap, component) => {
-  return typeof component === 'string'
-    ? componentsMap[component]
-    : component;
+  return typeof component === 'string' ? componentsMap[component] : component;
 };
 
 const SdFlcReactRouterPages = (props) => {
-  const { componentsMap, failoverComponent, layout, roles, rolesDontMatchComponent, rolesDontMatchLayout, siteMap } = props;
+  const {
+    componentsMap,
+    failoverComponent,
+    layout,
+    roles,
+    rolesDontMatchComponent,
+    rolesDontMatchLayout,
+    siteMap,
+  } = props;
   const rdmComponentToUse = selectComponentToUse(componentsMap, rolesDontMatchComponent);
   const rdmLayoutToUse = selectComponentToUse(componentsMap, rolesDontMatchLayout);
 
@@ -24,14 +30,12 @@ const SdFlcReactRouterPages = (props) => {
       layoutToUse = failoverComponent;
       propstoUse = {
         ...props,
-        failoverFor: 'layout'
+        failoverFor: 'layout',
       };
     }
 
-    return layoutToUse
-      ? React.createElement(layoutToUse, propstoUse)
-      : null;
-  }
+    return layoutToUse ? React.createElement(layoutToUse, propstoUse) : null;
+  };
 
   /**
    * Renders a page component with wrapping it by a layout if it exists.
@@ -47,8 +51,8 @@ const SdFlcReactRouterPages = (props) => {
       component = failoverComponent;
       finalProps = {
         ...finalProps,
-        failoverFor: 'page'
-      }
+        failoverFor: 'page',
+      };
     }
 
     const renderedComponent = React.createElement(component, finalProps);
@@ -60,7 +64,7 @@ const SdFlcReactRouterPages = (props) => {
         children: renderedComponent,
         page,
         siteMap,
-        rolesDontMatch
+        rolesDontMatch,
       });
     } else if (page.layout) {
       // Page has specified layout component to use when rendering
@@ -68,7 +72,7 @@ const SdFlcReactRouterPages = (props) => {
         children: renderedComponent,
         page,
         siteMap,
-        rolesDontMatch
+        rolesDontMatch,
       });
     } else if (layout) {
       // The SdFclPages component has specified layout component to use when rendering pages
@@ -76,15 +80,15 @@ const SdFlcReactRouterPages = (props) => {
         children: renderedComponent,
         page,
         siteMap,
-        rolesDontMatch
+        rolesDontMatch,
       });
     } else {
       // There is no layout component to wrapp the page when rendering
       wrapper = renderedComponent;
     }
-    
+
     return wrapper;
-  }
+  };
 
   /**
    * Takes site map array (represents all the pages in the hierarchical way) and
@@ -108,7 +112,7 @@ const SdFlcReactRouterPages = (props) => {
 
       let rolesDontMatch = false;
       if (pageHasRoles) {
-        const intersectedRoles = rolesToMatch.filter(value => pageRoles.includes(value));
+        const intersectedRoles = rolesToMatch.filter((value) => pageRoles.includes(value));
         rolesDontMatch = intersectedRoles.length === 0;
 
         if (rolesDontMatch) {
@@ -119,36 +123,31 @@ const SdFlcReactRouterPages = (props) => {
           }
         }
       }
-      
+
       const path = urlmask || url;
       const exact = urlmask === undefined || urlmask.length === 0 ? true : false;
 
-      return React.createElement(
-        Route,
-        {
-          key: url,
-          exact,
-          path,
-          render: (innerProps) => {
-            return renderMergedProps(componentToUse, {
-              page,
-              siteMap,
-              rolesDontMatch,
-              ...innerProps,
-            });
-          }
-        }
-      );
+      return React.createElement(Route, {
+        key: url,
+        exact,
+        path,
+        render: (innerProps) => {
+          return renderMergedProps(componentToUse, {
+            page,
+            siteMap,
+            rolesDontMatch,
+            ...innerProps,
+          });
+        },
+      });
     });
-  }
+  };
 
-  const el = React.createElement(BrowserRouter, {
-    children: React.createElement(Switch, {
-      children: renderRoutes()
-    })
-  });
-
-  return el;
+  return (
+    <BrowserRouter>
+      <Switch>{renderRoutes()}</Switch>
+    </BrowserRouter>
+  );
 };
 
 const SiteMapItem = {
@@ -163,13 +162,15 @@ const SiteMapItem = {
   options: PropTypes.object,
 };
 
-SdFlcReactRouterPages.displayName = "SdFlcReactRouterPages";
+SdFlcReactRouterPages.displayName = 'SdFlcReactRouterPages';
 
 SdFlcReactRouterPages.propTypes = {
-  siteMap: PropTypes.arrayOf(PropTypes.shape({
-    ...SiteMapItem,
-    items: PropTypes.arrayOf(PropTypes.shape(SiteMapItem))
-  })).isRequired,
+  siteMap: PropTypes.arrayOf(
+    PropTypes.shape({
+      ...SiteMapItem,
+      items: PropTypes.arrayOf(PropTypes.shape(SiteMapItem)),
+    })
+  ).isRequired,
   layout: PropTypes.oneOfType([PropTypes.node, PropTypes.element, PropTypes.func]),
   componentsMap: PropTypes.object,
   failoverComponent: PropTypes.oneOfType([PropTypes.node, PropTypes.element, PropTypes.func]),
@@ -178,4 +179,4 @@ SdFlcReactRouterPages.propTypes = {
   rolesDontMatchLayout: PropTypes.oneOfType([PropTypes.node, PropTypes.element, PropTypes.func]),
 };
 
-export default SdFlcReactRouterPages;
+export { SdFlcReactRouterPages };

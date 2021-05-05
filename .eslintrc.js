@@ -1,16 +1,20 @@
 module.exports = {
   env: {
     browser: true,
-    es6: true,
+    es2020: true,
   },
   extends: [
-    'plugin:react/recommended',
     'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:jest/recommended',
+    'plugin:prettier/recommended',
   ],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
   },
+  parser: '@babel/eslint-parser',
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -20,12 +24,9 @@ module.exports = {
   },
   plugins: ['react'],
   rules: {
-    'filenames/match-regex': 'off',
-    '@typescript-eslint/camelcase': 'off',
-    'react/prop-types': 'off',
-    'no-unused-vars': 'off',
-    'react/display-name': [0, { ignoreTranspilerName: true }],
-    'react/no-string-refs': 'off',
+    'prettier/prettier': 'error',
+    'arrow-body-style': 'off',
+    'prefer-arrow-callback': 'off',
   },
   settings: {
     react: {

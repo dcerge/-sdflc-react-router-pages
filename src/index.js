@@ -1,8 +1,4 @@
 import { processRoutes, findPageByUrl } from './utils';
-import SdFlcPages from './component';
+import { SdFlcReactRouterPages } from './component';
 
-export default SdFlcPages;
-export {
-  findPageByUrl,
-  processRoutes
-};
+export { SdFlcReactRouterPages, findPageByUrl, processRoutes };
