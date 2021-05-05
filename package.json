@@ -14,9 +14,9 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "lint": "eslint . --ext .ts --fix",
+    "lint": "eslint . --ext .js --fix",
     "test": "jest -w 1",
-    "format": "prettier --write \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.js\"",
     "prepare": "husky install && npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
