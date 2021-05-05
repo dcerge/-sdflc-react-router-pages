@@ -6,8 +6,7 @@
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
   "files": [
-    "dist/**/*",
-    "package.json"
+    "dist/**/*"
   ],
   "engines": {
     "node": ">=10",
