@@ -5,14 +5,23 @@
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
+  "files": [
+    "dist/**/*"
+  ],
   "engines": {
     "node": ">=10",
     "npm": ">=5"
   },
   "scripts": {
-    "test": "jest",
     "build": "rollup -c",
-    "prepare": "husky install"
+    "lint": "eslint . --ext .ts --fix",
+    "test": "jest -w 1",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepare": "husky install && npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "keywords": [
     "ui",
