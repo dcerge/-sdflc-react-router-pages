@@ -34,5 +34,5 @@ export default {
     commonjs(),
     postcss({ modules: true }),
   ],
-  external: ['react', 'react-dom'],
+  //external: ['react', 'react-dom', 'react-router-dom'],
 };
