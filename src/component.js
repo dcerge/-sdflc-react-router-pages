@@ -21,73 +21,22 @@ const SdFlcReactRouterPages = (props) => {
   const rdmComponentToUse = selectComponentToUse(componentsMap, rolesDontMatchComponent);
   const rdmLayoutToUse = selectComponentToUse(componentsMap, rolesDontMatchLayout);
 
-  const renderLayout = (layout, props) => {
-    let layoutToUse = selectComponentToUse(componentsMap, layout);
-    let propstoUse = props || {};
-
-    if (!layoutToUse) {
-      console.error('Page layout not found in componentsMap or is not a component, page details:', propstoUse.page);
-      layoutToUse = failoverComponent;
-      propstoUse = {
-        ...props,
-        failoverFor: 'layout',
-      };
-    }
-
-    return layoutToUse ? React.createElement(layoutToUse, propstoUse) : null;
-  };
-
-  /**
-   * Renders a page component with wrapping it by a layout if it exists.
-   * @param {component} component is a page to render
-   * @param {object} pageProps is set of props to pass to page component
-   */
-  const renderMergedProps = (component, pageProps) => {
-    const { page, siteMap, rolesDontMatch } = pageProps;
-    let finalProps = Object.assign({}, pageProps);
-
-    if (!component) {
-      console.error('Page component not found in componentsMap either it is not a component, page details:', pageProps);
-      component = failoverComponent;
-      finalProps = {
-        ...finalProps,
-        failoverFor: 'page',
-      };
-    }
-
-    const renderedComponent = React.createElement(component, finalProps);
-    let wrapper = null;
+  const selectLayout = (args) => {
+    const { page, rolesDontMatch } = args;
+    let layout2use = React.Fragment;
 
     if (rolesDontMatch && rdmLayoutToUse) {
       // Page has specified layout component to use when rendering
-      wrapper = renderLayout(rdmLayoutToUse, {
-        children: renderedComponent,
-        page,
-        siteMap,
-        rolesDontMatch,
-      });
+      layout2use = rdmLayoutToUse;
     } else if (page.layout) {
       // Page has specified layout component to use when rendering
-      wrapper = renderLayout(page.layout, {
-        children: renderedComponent,
-        page,
-        siteMap,
-        rolesDontMatch,
-      });
+      layout2use = page.layout;
     } else if (layout) {
       // The SdFclPages component has specified layout component to use when rendering pages
-      wrapper = renderLayout(layout, {
-        children: renderedComponent,
-        page,
-        siteMap,
-        rolesDontMatch,
-      });
-    } else {
-      // There is no layout component to wrapp the page when rendering
-      wrapper = renderedComponent;
+      layout2use = layout;
     }
 
-    return wrapper;
+    return selectComponentToUse(componentsMap, layout2use);
   };
 
   /**
@@ -102,7 +51,7 @@ const SdFlcReactRouterPages = (props) => {
         return null;
       }
 
-      let componentToUse = selectComponentToUse(componentsMap, component);
+      let ComponentToUse = selectComponentToUse(componentsMap, component);
       const pageHasRoles = Array.isArray(pageRoles) && pageRoles.length > 0;
       let rolesToMatch = roles || [];
 
@@ -117,7 +66,7 @@ const SdFlcReactRouterPages = (props) => {
 
         if (rolesDontMatch) {
           if (rdmComponentToUse) {
-            componentToUse = rdmComponentToUse;
+            ComponentToUse = rdmComponentToUse;
           } else {
             return null;
           }
@@ -127,19 +76,34 @@ const SdFlcReactRouterPages = (props) => {
       const path = urlmask || url;
       const exact = urlmask === undefined || urlmask.length === 0 ? true : false;
 
-      return React.createElement(Route, {
-        key: url,
-        exact,
-        path,
-        render: (innerProps) => {
-          return renderMergedProps(componentToUse, {
-            page,
-            siteMap,
-            rolesDontMatch,
-            ...innerProps,
-          });
-        },
-      });
+      let Layout = selectLayout({ page, rolesDontMatch });
+      let failoverFor = undefined;
+
+      if (!Layout) {
+        console.error(
+          'Page layout not found in componentsMap or is not a component, page details:',
+          componentsMap,
+          layout,
+          page
+        );
+        Layout = failoverComponent;
+        failoverFor = 'layout';
+      }
+
+      if (!ComponentToUse) {
+        ComponentToUse = failoverComponent;
+        failoverFor = 'page';
+      }
+
+      const props2Use = { page, siteMap, rolesDontMatch, failoverFor };
+
+      return (
+        <Route key={url} exact={exact} path={path}>
+          <Layout {...props2Use}>
+            <ComponentToUse {...props2Use} />
+          </Layout>
+        </Route>
+      );
     });
   };
 
