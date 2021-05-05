@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as BrowserRouterOrig, Route as RouteOrig, Switch as SwitchOrig } from 'react-router-dom';
 
 import { processRoutes } from './utils';
 
@@ -17,7 +17,9 @@ const SdFlcReactRouterPages = (props) => {
     rolesDontMatchComponent,
     rolesDontMatchLayout,
     siteMap,
+    routerComponents,
   } = props;
+  const { BrowserRouter, Route, Switch } = routerComponents;
   const rdmComponentToUse = selectComponentToUse(componentsMap, rolesDontMatchComponent);
   const rdmLayoutToUse = selectComponentToUse(componentsMap, rolesDontMatchLayout);
 
@@ -141,6 +143,19 @@ SdFlcReactRouterPages.propTypes = {
   roles: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.func]),
   rolesDontMatchComponent: PropTypes.oneOfType([PropTypes.node, PropTypes.element, PropTypes.func]),
   rolesDontMatchLayout: PropTypes.oneOfType([PropTypes.node, PropTypes.element, PropTypes.func]),
+  routerComponents: PropTypes.shape({
+    BrowserRouter: PropTypes.any,
+    Switch: PropTypes.any,
+    Route: PropTypes.any,
+  }),
+};
+
+SdFlcReactRouterPages.defaultProps = {
+  routerComponents: {
+    BrowserRouter: BrowserRouterOrig,
+    Switch: SwitchOrig,
+    Route: RouteOrig,
+  },
 };
 
 export { SdFlcReactRouterPages };
