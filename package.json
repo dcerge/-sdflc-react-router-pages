@@ -20,7 +20,8 @@
     "prepare": "husky install && npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
-    "version": "npm run format && git add -A src",
+    "version": "git add -A src",
+    "versionOld": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
   },
   "keywords": [
@@ -36,7 +37,7 @@
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0",
     "react-router-dom": ">=5.2.0",
-    "prop-types": "^15.7.2"
+    "prop-types": ">=15.7.2"
   },
   "dependencies": {
     "prop-types": "^15.7.2",
