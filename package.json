@@ -1,6 +1,6 @@
 {
   "name": "@sdflc/react-router-pages",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A simple helper component that uses an array with a list of web application pages to render component `Route` (from `react-router-dom`) for each page from that array.",
   "type": "module",
   "main": "dist/index.js",
