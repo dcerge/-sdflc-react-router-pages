@@ -4,6 +4,12 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { SdFlcReactRouterPages } from '../src/component';
 
+const TestWrapper = ({ children, initialRoute = '/' }) => (
+  <MemoryRouter initialEntries={[initialRoute]}>
+    {children}
+  </MemoryRouter>
+);
+
 // Test Components
 const HomePage = () => <div>Home Page</div>;
 const AboutPage = () => <div>About Page</div>;
@@ -17,17 +23,6 @@ const MainLayout = ({ children }) => (
     <main>{children}</main>
   </div>
 );
-
-// Custom render function with MemoryRouter
-const renderWithRouter = (ui, { route = '/' } = {}) => {
-  window.history.pushState({}, 'Test page', route);
-  
-  return render(
-    <MemoryRouter initialEntries={[route]}>
-      {ui}
-    </MemoryRouter>
-  );
-};
 
 describe('SdFlcReactRouterPages Component', () => {
   const basicSiteMap = [
@@ -54,33 +49,38 @@ describe('SdFlcReactRouterPages Component', () => {
   ];
 
   it('renders basic routes correctly', () => {
-    const { container } = renderWithRouter(
-      <SdFlcReactRouterPages
-        siteMap={basicSiteMap}
-        routerComponents={{ BrowserRouter: ({ children }) => children }}
-      />
+    render(
+      <TestWrapper>
+        <SdFlcReactRouterPages
+          siteMap={basicSiteMap}
+          routerComponents={{ BrowserRouter: ({ children }) => children }}
+        />
+      </TestWrapper>
     );
     expect(screen.getByText('Home Page')).toBeDefined();
   });
 
   it('renders about page when navigated to /about', () => {
-    const { container } = renderWithRouter(
-      <SdFlcReactRouterPages
-        siteMap={basicSiteMap}
-        routerComponents={{ BrowserRouter: ({ children }) => children }}
-      />,
-      { route: '/about' }
+    render(
+      <TestWrapper initialRoute="/about">
+        <SdFlcReactRouterPages
+          siteMap={basicSiteMap}
+          routerComponents={{ BrowserRouter: ({ children }) => children }}
+        />
+      </TestWrapper>
     );
     expect(screen.getByText('About Page')).toBeDefined();
   });
 
   it('applies layout correctly', () => {
-    const { container } = renderWithRouter(
-      <SdFlcReactRouterPages
-        siteMap={basicSiteMap}
-        layout={MainLayout}
-        routerComponents={{ BrowserRouter: ({ children }) => children }}
-      />
+    render(
+      <TestWrapper>
+        <SdFlcReactRouterPages
+          siteMap={basicSiteMap}
+          layout={MainLayout}
+          routerComponents={{ BrowserRouter: ({ children }) => children }}
+        />
+      </TestWrapper>
     );
     expect(screen.getByTestId('main-layout')).toBeDefined();
     expect(screen.getByText('Navigation')).toBeDefined();
@@ -88,41 +88,44 @@ describe('SdFlcReactRouterPages Component', () => {
   });
 
   it('handles role-based access correctly', () => {
-    const { container } = renderWithRouter(
-      <SdFlcReactRouterPages
-        siteMap={protectedSiteMap}
-        roles={['user']}
-        rolesDontMatchComponent={NotAuthorizedPage}
-        routerComponents={{ BrowserRouter: ({ children }) => children }}
-      />,
-      { route: '/admin' }
+    render(
+      <TestWrapper initialRoute="/admin">
+        <SdFlcReactRouterPages
+          siteMap={protectedSiteMap}
+          roles={['user']}
+          rolesDontMatchComponent={NotAuthorizedPage}
+          routerComponents={{ BrowserRouter: ({ children }) => children }}
+        />
+      </TestWrapper>
     );
     expect(screen.getByText('Not Authorized')).toBeDefined();
   });
 
   it('allows access to protected routes with correct role', () => {
-    const { container } = renderWithRouter(
-      <SdFlcReactRouterPages
-        siteMap={protectedSiteMap}
-        roles={['admin']}
-        rolesDontMatchComponent={NotAuthorizedPage}
-        routerComponents={{ BrowserRouter: ({ children }) => children }}
-      />,
-      { route: '/admin' }
+    render(
+      <TestWrapper initialRoute="/admin">
+        <SdFlcReactRouterPages
+          siteMap={protectedSiteMap}
+          roles={['admin']}
+          rolesDontMatchComponent={NotAuthorizedPage}
+          routerComponents={{ BrowserRouter: ({ children }) => children }}
+        />
+      </TestWrapper>
     );
     expect(screen.getByText('Admin Page')).toBeDefined();
   });
 
-  it('uses failover component for non-existent routes', async () => {
+  it('uses failover component for non-existent routes', () => {
     const NotFound = () => <div>404 Not Found</div>;
     
-    const { container } = renderWithRouter(
-      <SdFlcReactRouterPages
-        siteMap={basicSiteMap}
-        failoverComponent={NotFound}
-        routerComponents={{ BrowserRouter: ({ children }) => children }}
-      />,
-      { route: '/non-existent' }
+    render(
+      <TestWrapper initialRoute="/non-existent">
+        <SdFlcReactRouterPages
+          siteMap={basicSiteMap}
+          failoverComponent={NotFound}
+          routerComponents={{ BrowserRouter: ({ children }) => children }}
+        />
+      </TestWrapper>
     );
     
     expect(screen.getByText('404 Not Found')).toBeDefined();

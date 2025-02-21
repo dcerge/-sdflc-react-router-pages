@@ -1,15 +1,14 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { processRoutes, findPageByUrl } from './utils';
+import { processRoutes } from './utils';
 
 const selectComponentToUse = (componentsMap, component) => {
   return typeof component === 'string' ? componentsMap[component] : component;
 };
 
-// Basic wrapper component to avoid passing props to Fragment
 const DefaultLayout = ({ children }) => <>{children}</>;
 
-const RouteContent = ({ 
+function RouteContent({ 
   page, 
   componentsMap,
   layout,
@@ -18,10 +17,9 @@ const RouteContent = ({
   failoverComponent,
   roles,
   siteMap 
-}) => {
+}) {
   const location = useLocation();
   
-  // Process roles
   const pageHasRoles = Array.isArray(page.roles) && page.roles.length > 0;
   let rolesToMatch = roles || [];
   
@@ -35,7 +33,6 @@ const RouteContent = ({
     rolesDontMatch = intersectedRoles.length === 0;
   }
   
-  // Select the component to render
   let ComponentToUse = selectComponentToUse(componentsMap, page.component);
   if (rolesDontMatch && rolesDontMatchComponent) {
     ComponentToUse = selectComponentToUse(componentsMap, rolesDontMatchComponent);
@@ -44,7 +41,6 @@ const RouteContent = ({
     ComponentToUse = failoverComponent || (() => null);
   }
 
-  // Select the layout
   let Layout = DefaultLayout;
   if (rolesDontMatch && rolesDontMatchLayout) {
     Layout = selectComponentToUse(componentsMap, rolesDontMatchLayout) || DefaultLayout;
@@ -67,14 +63,14 @@ const RouteContent = ({
       <ComponentToUse {...props} />
     </Layout>
   );
-};
+}
 
-const NotFoundRoute = ({ component: FailoverComponent }) => {
+function NotFoundRoute({ component: Component }) {
   const location = useLocation();
-  return <FailoverComponent location={location} />;
-};
+  return <Component location={location} />;
+}
 
-const SdFlcReactRouterPages = ({
+function SdFlcReactRouterPages({
   siteMap,
   layout,
   componentsMap = {},
@@ -83,60 +79,55 @@ const SdFlcReactRouterPages = ({
   rolesDontMatchComponent,
   rolesDontMatchLayout,
   routerComponents: {
-    BrowserRouter: CustomBrowserRouter = BrowserRouter
+    BrowserRouter: RouterComponent = BrowserRouter
   } = {}
-}) => {
-  const renderRoutes = () => {
-    const routes = processRoutes(siteMap).map(page => {
-      const { url, urlmask } = page;
-      
-      if (!url || !page.component) {
-        return null;
-      }
-
-      const path = urlmask || url;
-      
-      return (
-        <Route
-          key={url}
-          path={path}
-          element={
-            <RouteContent
-              page={page}
-              componentsMap={componentsMap}
-              layout={layout}
-              rolesDontMatchComponent={rolesDontMatchComponent}
-              rolesDontMatchLayout={rolesDontMatchLayout}
-              failoverComponent={failoverComponent}
-              roles={roles}
-              siteMap={siteMap}
-            />
-          }
-        />
-      );
-    });
-
-    // Add catch-all route for non-existent paths
-    if (failoverComponent) {
-      routes.push(
-        <Route
-          key="not-found"
-          path="*"
-          element={<NotFoundRoute component={failoverComponent} />}
-        />
-      );
+}) {
+  const routes = processRoutes(siteMap).map(page => {
+    const { url, urlmask } = page;
+    
+    if (!url || !page.component) {
+      return null;
     }
 
-    return routes;
-  };
+    const path = urlmask || url;
+    
+    return (
+      <Route
+        key={url}
+        path={path}
+        element={
+          <RouteContent
+            page={page}
+            componentsMap={componentsMap}
+            layout={layout}
+            rolesDontMatchComponent={rolesDontMatchComponent}
+            rolesDontMatchLayout={rolesDontMatchLayout}
+            failoverComponent={failoverComponent}
+            roles={roles}
+            siteMap={siteMap}
+          />
+        }
+      />
+    );
+  });
+
+  if (failoverComponent) {
+    routes.push(
+      <Route
+        key="not-found"
+        path="*"
+        element={<NotFoundRoute component={failoverComponent} />}
+      />
+    );
+  }
 
   return (
-    <CustomBrowserRouter>
+    <RouterComponent>
       <Routes>
-        {renderRoutes()}
+        {routes}
       </Routes>
-    </CustomBrowserRouter>
+    </RouterComponent>
   );
-};
+}
 
-export { SdFlcReactRouterPages, findPageByUrl };
+export { SdFlcReactRouterPages };

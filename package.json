@@ -2,6 +2,7 @@
   "name": "@sdflc/react-router-pages",
   "version": "2.0.0",
   "description": "A simple helper component that uses an array with a list of web application pages to render component `Route` (from `react-router-dom`) for each page from that array.",
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
@@ -14,7 +15,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "lint": "eslint . --ext .js,.jsx --fix",
+    "lint": "eslint .",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "format": "prettier --write \"src/**/*.{js,jsx}\"",
