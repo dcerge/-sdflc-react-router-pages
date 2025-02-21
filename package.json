@@ -1,27 +1,27 @@
 {
   "name": "@sdflc/react-router-pages",
-  "version": "1.0.11",
-  "description": "A simple helper component that uses an array with a list of web application pages to render component `<Route>` (from `react-router-dom`) for each page from that array.",
+  "version": "2.0.0",
+  "description": "A simple helper component that uses an array with a list of web application pages to render component `Route` (from `react-router-dom`) for each page from that array.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
-  "jsnext:main": "dist/index.es.js",
   "files": [
     "dist/**/*"
   ],
   "engines": {
-    "node": ">=10",
-    "npm": ">=5"
+    "node": ">=18",
+    "npm": ">=8"
   },
   "scripts": {
-    "build": "rollup -c",
-    "lint": "eslint . --ext .js --fix",
-    "test": "jest -w 1",
-    "format": "prettier --write \"src/**/*.js\"",
-    "prepare": "husky install && npm run build",
-    "prepublishOnly": "npm test && npm run lint",
+    "build": "vite build",
+    "dev": "vite",
+    "lint": "eslint . --ext .js,.jsx --fix",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "format": "prettier --write \"src/**/*.{js,jsx}\"",
+    "prepare": "husky install",
+    "prepublishOnly": "npm test && npm run lint && npm run build",
     "preversion": "npm run lint",
     "version": "git add -A src",
-    "versionOld": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
   },
   "keywords": [
@@ -34,47 +34,14 @@
   "author": "Sergey Demidenko",
   "license": "ISC",
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0",
-    "react-router-dom": ">=5.2.0",
-    "prop-types": ">=15.7.2"
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0",
+    "react-router-dom": ">=6.0.0"
   },
   "dependencies": {
-    "prop-types": "^15.7.2",
-    "react": "^17.0.1",
-    "react-router-dom": "^5.2.0"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.12.8",
-    "@babel/core": "^7.12.9",
-    "@babel/eslint-parser": "^7.13.14",
-    "@babel/plugin-external-helpers": "^7.12.13",
-    "@babel/preset-env": "^7.13.12",
-    "@babel/preset-react": "^7.13.13",
-    "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-commonjs": "^18.0.0",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.1",
-    "@rollup/plugin-url": "^6.0.0",
-    "@types/jest": "^26.0.21",
-    "babel-jest": "^26.6.3",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-polyfill": "^6.26.0",
-    "eslint": "^7.15.0",
-    "eslint-config-prettier": "^7.0.0",
-    "eslint-plugin-jest": "^24.1.3",
-    "eslint-plugin-prettier": "^3.2.0",
-    "eslint-plugin-react": "^7.23.2",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "husky": "^6.0.0",
-    "jest": "^26.6.3",
-    "prettier": "^2.2.1",
-    "rollup": "^2.47.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-postcss": "^4.0.0"
-  },
-  "directories": {
-    "test": "tests"
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0",
+    "react-router-dom": ">=6.0.0"
   },
   "repository": {
     "type": "git",
@@ -83,5 +50,23 @@
   "bugs": {
     "url": "https://github.com/dcerge/-sdflc-react-router-pages/issues"
   },
-  "homepage": "https://github.com/dcerge/-sdflc-react-router-pages#readme"
+  "homepage": "https://github.com/dcerge/-sdflc-react-router-pages#readme",
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^3.0.6",
+    "eslint": "^9.20.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "husky": "^9.1.7",
+    "jsdom": "^26.0.0",
+    "prettier": "^3.5.1",
+    "vite": "^6.1.1",
+    "vitest": "^3.0.6"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

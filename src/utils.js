@@ -51,7 +51,6 @@ const addLevel = (allPages, level, parent, pages) => {
 const processRoutes = (siteMap) => {
   const allPages = [];
   addLevel(allPages, 1, null, siteMap);
-
   return allPages;
 };
 
@@ -60,19 +59,17 @@ const processRoutes = (siteMap) => {
  * @param {string} url Url to look up page configuration.
  * @returns {number} An index of found page or -1 if such page not found.
  */
-const findPageByUrl = (/*url*/) => {
-  // const fs = flattenSitemap();
+const findPageByUrl = (url) => {
+  const fs = processRoutes();
 
-  // const idx = fs.findIndex((f) => {
-  //   const p = f.url ? f.url.search(':') : -1;
-  //   const ul = p > 0 ? f.url.substr(0, p) : f.url;
-  //   const ur = p > 0 ? url.substr(0, p) : url;
-  //   return ul === ur;
-  // });
+  const idx = fs.findIndex((f) => {
+    const p = f.url ? f.url.search(':') : -1;
+    const ul = p > 0 ? f.url.substr(0, p) : f.url;
+    const ur = p > 0 ? url.substr(0, p) : url;
+    return ul === ur;
+  });
 
-  // return idx !== -1 ? fs[idx] : null;
-
-  return null;
+  return idx !== -1 ? fs[idx] : null;
 };
 
 export { processRoutes, findPageByUrl };
